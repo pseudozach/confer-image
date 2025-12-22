@@ -126,20 +126,28 @@ mkosi.extra/requirements-attestation.lock: requirements-attestation.lock
 	@mkdir -p mkosi.extra
 	@cp requirements-attestation.lock mkosi.extra/
 
-# Generate frozen Python requirements (run this once to create lock file)
+# Generate frozen Python requirements (run this once to create lock files)
+# vLLM and attestation SDK are installed separately due to dependency conflicts
 freeze-requirements:
 	@echo "Generating frozen Python requirements..."
-	@echo "This will create a temporary venv and freeze all dependencies"
 	@echo ""
-	@echo "Installing: vllm + nv-attestation-sdk (for GPU attestation)"
-	@echo ""
+	@echo "==> Freezing vLLM dependencies..."
 	@rm -rf /tmp/vllm-freeze
 	@python3.12 -m venv /tmp/vllm-freeze
 	@/tmp/vllm-freeze/bin/pip install --upgrade pip
-	@/tmp/vllm-freeze/bin/pip install virtualenv vllm nv-attestation-sdk
-	@/tmp/vllm-freeze/bin/pip freeze > requirements.lock
+	@/tmp/vllm-freeze/bin/pip install vllm==0.13.0
+	@/tmp/vllm-freeze/bin/pip freeze > requirements-vllm.lock
 	@rm -rf /tmp/vllm-freeze
-	@echo "Created requirements.lock with $(shell wc -l < requirements.lock) pinned packages"
+	@echo "Created requirements-vllm.lock with $$(wc -l < requirements-vllm.lock) pinned packages"
+	@echo ""
+	@echo "==> Freezing attestation SDK dependencies..."
+	@rm -rf /tmp/attestation-freeze
+	@python3.12 -m venv /tmp/attestation-freeze
+	@/tmp/attestation-freeze/bin/pip install --upgrade pip
+	@/tmp/attestation-freeze/bin/pip install nv-attestation-sdk
+	@/tmp/attestation-freeze/bin/pip freeze > requirements-attestation.lock
+	@rm -rf /tmp/attestation-freeze
+	@echo "Created requirements-attestation.lock with $$(wc -l < requirements-attestation.lock) pinned packages"
 
 # Clean build artifacts
 clean:
