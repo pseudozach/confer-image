@@ -8,9 +8,6 @@ Type=simple
 User=root
 EnvironmentFile=/mnt/config/secrets.env
 
-# Ensure artifacts directory exists
-ExecStartPre=/bin/mkdir -p /tmp/docling-models
-
 # Run with clean environment - only pass specific variables from secrets.env
 ExecStart=/bin/bash -c 'exec env -i \
     PATH=/opt/venv-docling/bin:/usr/local/bin:/usr/bin:/bin \
